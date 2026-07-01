@@ -1,1 +1,1 @@
-# RetailForgeAI-Retail-Business-Agent-KaggleCapstone
+# Agent Name: RetailForgeAI
