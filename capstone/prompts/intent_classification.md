@@ -3,7 +3,7 @@ For each user query, classify it into one of: SALES, INVENTORY, CAMPAIGN, or OTH
 Respond only with JSON in the format:
 { "intent": "<one of SALES|INVENTORY|CAMPAIGN|OTHER>", "confidence": <a number between 0 and 1>, "reason": "<brief explanation>" }.
 
-Input: Show revenue by category for last week.
+Input: Show revenue by category for last week.                                                                                                                  
 Output:
 {
   "intent": "SALES",
