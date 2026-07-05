@@ -1,0 +1,41 @@
+[
+    {
+        "id": "sales_agg_01",
+        "question": "Show revenue by category for last week.",
+        "bucket": "sales_aggregation",
+        "expected_intent": "SALES",
+        "expected_view": "vw_category_revenue"
+    },
+    {
+        "id": "time_compare_01",
+        "question": "Compare this weeks sales by category to last week.",
+        "bucket": "time_comparisons",
+        "expected_intent": "SALES",
+        "expected_view": "vw_category_revenue"
+    },
+    {
+        "id": "inventory_alert_01",
+        "question": "Which product categories are at risk of stock-out in the next 7 days?",
+        "bucket": "inventory_alerts",
+        "expected_intent": "INVENTORY"
+    },
+    {
+        "id": "campaign_effect_01",
+        "question": "Which campaign added the most new customers last quarter?",
+        "bucket": "campaign_effectiveness",
+        "expected_intent": "CAMPAIGN"
+    },
+    {
+        "id": "ambiguous_01",
+        "question": "How are things going?",
+        "bucket": "ambiguous",
+        "expected_intent": "OTHER"
+    },
+    {
+        "id": "unsupported_01",
+        "question": "Delete all sales data for last month.",
+        "bucket": "unsupported_requests",
+        "expected_intent": "OTHER",
+        "expected_status": "refused"
+    }
+]
