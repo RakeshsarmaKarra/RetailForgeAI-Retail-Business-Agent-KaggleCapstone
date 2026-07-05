@@ -1,12 +1,149 @@
-<input id="question-input" type="text" placeholder="Ask a retail business question..." />
-<button id="ask-button">Ask Agent</button>
+<!DOCTYPE html>
+<html lang="en">
 
-<div id="user-question"></div>
+<head>
+    <meta charset="UTF-8" />
+    <title>RetailForgeAI – Retail Business Agent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-<div id="final-answer"></div>
+        #question-input {
+            width: 60%;
+            padding: 8px;
+            margin-right: 8px;
+        }
 
-<div id="generated-sql"></div>
+        #ask-button {
+            padding: 8px 16px;
+        }
 
-<div id="timestamp"></div>
+        .panel {
+            margin-top: 16px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
-<div id="status-note"></div>
+        .label {
+            font-weight: bold;
+        }
+
+        .disabled {
+            color: grey;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>RetailForgeAI – Retail Business Agent</h1>
+
+    <!-- Question input -->
+    <div class="panel">
+        <input id="question-input" type="text" placeholder="Ask a retail business question..." />
+        <button id="ask-button">Ask Agent</button>
+    </div>
+
+    <!-- AI assistant transparency panel -->
+    <div class="panel">
+        <div class="label">User question:</div>
+        <div id="user-question"></div>
+
+        <div class="label" style="margin-top: 8px;">Final answer:</div>
+        <div id="final-answer"></div>
+
+        <div class="label" style="margin-top: 8px;">Generated SQL / data source:</div>
+        <div id="generated-sql"></div>
+
+        <div class="label" style="margin-top: 8px;">Timestamp:</div>
+        <div id="timestamp"></div>
+
+        <div class="label" style="margin-top: 8px;">Status / guardrail note:</div>
+        <div id="status-note"></div>
+    </div>
+
+    <script>
+        // Adjust this URL if your backend runs elsewhere
+        const backendUrl = "http://localhost:8000/agent/query";
+
+        document
+            .getElementById("ask-button")
+            .addEventListener("click", async () => {
+                const questionInput = document.getElementById("question-input");
+                const question = questionInput.value.trim();
+
+                // Show the raw question
+                document.getElementById("user-question").innerText =
+                    question ? question : "(no question entered)";
+
+                const finalAnswerDiv = document.getElementById("final-answer");
+                const sqlDiv = document.getElementById("generated-sql");
+                const statusNoteDiv = document.getElementById("status-note");
+                const timestampDiv = document.getElementById("timestamp");
+
+                // Clear previous values
+                finalAnswerDiv.innerText = "";
+                sqlDiv.innerText = "";
+                statusNoteDiv.innerText = "";
+                timestampDiv.innerText = "";
+
+                if (!question) {
+                    statusNoteDiv.innerText = "Status: refused – Please enter a question.";
+                    finalAnswerDiv.classList.add("disabled");
+                    return;
+                }
+
+                try {
+                    const response = await fetch(backendUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ question: question })
+                    });
+
+                    const data = await response.json();
+
+                    // Update status / guardrail note
+                    if (data.status === "ok") {
+                        statusNoteDiv.innerText = "Status: ok";
+                    } else {
+                        const reason = data.reason || "Unknown reason";
+                        statusNoteDiv.innerText = "Status: refused – " + reason;
+                    }
+
+                    // Final answer (for now: show SQL or refusal message)
+                    if (data.status === "ok") {
+                        finalAnswerDiv.innerText =
+                            "Agent used this query or view to answer: " +
+                            (data.generated_sql || "(no SQL provided)");
+                        finalAnswerDiv.classList.remove("disabled");
+                    } else {
+                        finalAnswerDiv.innerText =
+                            "No business answer returned because guardrails blocked the query.";
+                        finalAnswerDiv.classList.add("disabled");
+                    }
+
+                    // Generated SQL panel
+                    sqlDiv.innerText =
+                        data.generated_sql
+                            ? data.generated_sql
+                            : "(no SQL available for this request)";
+
+                    // Timestamp
+                    timestampDiv.innerText = new Date().toLocaleString();
+                } catch (err) {
+                    statusNoteDiv.innerText =
+                        "Status: error – Could not reach backend (" + err.message + ")";
+                    finalAnswerDiv.innerText =
+                        "Backend unavailable; please try again later.";
+                    finalAnswerDiv.classList.add("disabled");
+                }
+            });
+    </script>
+</body>
+
+</html>
