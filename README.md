@@ -85,5 +85,11 @@ Explain golden dataset, SQL accuracy, answer faithfulness, and guardrails.
 ## Limitations
 Prototype data and simulated business environment.
 
+## Capstone Context
+This project was developed as part of the Kaggle × Google 5-Day AI Agents: Intensive Vibe Coding Capstone. It demonstrates how an enterprise retail agent can combine dashboards, trusted SQL-based retrieval, forecasting, and LLMOps evaluation into a single business-facing system.
+
 ## Future Improvements
-Add forecasting, agent actions, and production monitoring.
+Planned next steps include live database integration, stronger forecasting models, role-based access control, store-level recommendations, and production-grade observability for agent behavior.
+
+## License
+This project is licensed under the Apache-2.0 License.
