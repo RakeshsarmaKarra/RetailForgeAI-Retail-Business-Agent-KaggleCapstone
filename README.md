@@ -80,16 +80,20 @@ capstone/
 ![campaigns](https://github.com/RakeshsarmaKarra/RetailForgeAI-Retail-Business-Agent-KaggleCapstone/blob/main/Campaigns.jpg)
 
 ## Evaluation
-Explain golden dataset, SQL accuracy, answer faithfulness, and guardrails.
+
+The project is evaluated using a set of retail business questions covering sales, inventory, and campaign analysis. Evaluation focuses on SQL correctness, business answer faithfulness, guardrail behavior, and whether responses remain grounded in approved database views.
 
 ## Limitations
-Prototype data and simulated business environment.
 
-## Capstone Context
-This project was developed as part of the Kaggle × Google 5-Day AI Agents: Intensive Vibe Coding Capstone. It demonstrates how an enterprise retail agent can combine dashboards, trusted SQL-based retrieval, forecasting, and LLMOps evaluation into a single business-facing system.
+This project currently uses a prototype retail environment with simulated or sample business data rather than a live enterprise retail system. Forecasting and campaign measurement are implemented as proof-of-concept components and can be extended further with production-scale datasets and stronger monitoring.
 
 ## Future Improvements
-Planned next steps include live database integration, stronger forecasting models, role-based access control, store-level recommendations, and production-grade observability for agent behavior.
+
+Future work includes live warehouse integration, more advanced demand forecasting, role-based access control, explainable recommendations, and production-grade observability for agent prompts, queries, latency, and business outcomes.
+
+## Capstone Context
+
+This repository was developed for the Kaggle × Google 5-Day AI Agents: Intensive Vibe Coding Capstone. The goal of the project is to demonstrate how AI agents can solve real business problems in retail through a combination of dashboards, grounded SQL retrieval, forecasting, and LLMOps practices.
 
 ## License
 This project is licensed under the Apache-2.0 License.
