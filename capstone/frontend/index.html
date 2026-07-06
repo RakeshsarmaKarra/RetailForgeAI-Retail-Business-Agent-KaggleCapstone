@@ -298,7 +298,8 @@
     </section>
 
     <script>
-        const API_BASE = "http://127.0.0.1:8000";
+        // const API_BASE = "http://127.0.0.1:8000";
+        const API_BASE = "https://retailforgeai-backend.onrender.com";
 
         function showTab(tabId, button) {
             document.querySelectorAll(".section").forEach(section => {
@@ -483,6 +484,7 @@
         loadDashboard();
         loadInventory();
         loadCampaigns();
+        loadForecast();
     </script>
 
 </body>
