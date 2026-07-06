@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RetailForgeAI Business Agent</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .filters {
+            background: white;
+            padding: 15px;
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        select,
+        input,
+        button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        nav {
+            display: flex;
+            background: #ffffff;
+            border-bottom: 1px solid #ddd;
+        }
+
+        nav button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        nav button.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .section {
+            display: none;
+            padding: 25px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .card p {
+            font-size: 26px;
+            font-weight: bold;
+            margin: 10px 0 0;
+        }
+
+        table {
+            width: 100%;
+            background: white;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border-bottom: 1px solid #e5e7eb;
+            text-align: left;
+        }
+
+        th {
+            background: #111827;
+            color: white;
+        }
+
+        .status-good {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-warning {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-danger {
+            color: red;
+            font-weight: bold;
+        }
+
+        .agent-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90px;
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        .sql-box {
+            background: #111827;
+            color: #00ff99;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+        }
+
+        .last-updated {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        RetailForgeAI - Retail Business Agent
+    </header>
+
+    <div class="filters">
+        <select id="dateFilter">
+            <option>Last 30 Days</option>
+            <option>Last 7 Days</option>
+            <option>Last Quarter</option>
+        </select>
+
+        <select id="categoryFilter">
+            <option>All Categories</option>
+            <option>Electronics</option>
+            <option>Groceries</option>
+            <option>Clothing</option>
+            <option>Home</option>
+        </select>
+
+        <select id="channelFilter">
+            <option>All Channels</option>
+            <option>Online</option>
+            <option>Offline</option>
+        </select>
+    </div>
+
+    <nav>
+        <button class="tab active" onclick="showTab('dashboard', this)">Dashboard</button>
+        <button class="tab" onclick="showTab('inventory', this)">Inventory</button>
+        <button class="tab" onclick="showTab('campaigns', this)">Campaigns</button>
+        <button class="tab" onclick="showTab('agent', this)">AI Agent</button>
+        <button class="tab" onclick="showTab('forecast', this)">Forecast</button>
+    </nav>
+
+    <section id="dashboard" class="section active">
+        <div class="cards">
+            <div class="card">
+                <h3>Total Revenue</h3>
+                <p id="totalRevenue">$0</p>
+            </div>
+            <div class="card">
+                <h3>Total Sales</h3>
+                <p id="totalSales">0</p>
+            </div>
+            <div class="card">
+                <h3>Profit Margin</h3>
+                <p id="profitMargin">0%</p>
+            </div>
+            <div class="card">
+                <h3>Total Customers</h3>
+                <p id="totalCustomers">0</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Revenue by Category</h2>
+            <canvas id="revenueChart"></canvas>
+        </div>
+
+        <div class="last-updated" id="lastUpdated"></div>
+    </section>
+
+    <section id="inventory" class="section">
+        <h2>Inventory Monitor</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>SKU</th>
+                    <th>Product</th>
+                    <th>Current Stock</th>
+                    <th>Predicted Demand</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+        </table>
+    </section>
+
+    <section id="campaigns" class="section">
+        <h2>Campaign Performance</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campaign</th>
+                    <th>Discount</th>
+                    <th>Revenue Lift</th>
+                    <th>New Customers</th>
+                    <th>Conversion Lift</th>
+                </tr>
+            </thead>
+            <tbody id="campaignTable"></tbody>
+        </table>
+    </section>
+
+    <section id="forecast" class="section">
+        <div class="card">
+            <h2>Demand Forecast</h2>
+            <table id="forecastTable" style="width:100%;border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Predicted Demand</th>
+                        <th>Recommendation</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+        </div>
+
+    </section>
+
+    <section id="agent" class="section">
+        <div class="agent-box">
+            <h2>Ask RetailForgeAI</h2>
+
+            <textarea id="questionInput">Show revenue by category</textarea>
+            <br><br>
+
+            <button onclick="askAgent()">Ask Question</button>
+
+            <h3>Status</h3>
+            <p id="agentStatus">Waiting...</p>
+
+            <h3>Generated SQL / Source Panel</h3>
+            <div class="sql-box" id="sqlOutput">SQL will appear here...</div>
+
+            <h3>Business Insight</h3>
+            <div id="insightOutput" style="
+                background:white;
+                padding:15px;
+                border-radius:8px;
+                margin-bottom:20px;
+            ">
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // const API_BASE = "http://127.0.0.1:8000";
+        const API_BASE = "https://retailforgeai-backend.onrender.com";
+
+        function showTab(tabId, button) {
+            document.querySelectorAll(".section").forEach(section => {
+                section.classList.remove("active");
+            });
+
+            document.querySelectorAll(".tab").forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+            document.getElementById(tabId).classList.add("active");
+            button.classList.add("active");
+        }
+
+        async function loadDashboard() {
+            const response = await fetch(`${API_BASE}/metrics/dashboard`);
+            const data = await response.json();
+
+            document.getElementById("totalRevenue").innerText = "$" + data.total_revenue.toLocaleString();
+            document.getElementById("totalSales").innerText = data.total_sales.toLocaleString();
+            document.getElementById("profitMargin").innerText = data.profit_margin + "%";
+            document.getElementById("totalCustomers").innerText = data.total_customers.toLocaleString();
+            document.getElementById("lastUpdated").innerText = "Last Updated: " + data.last_updated;
+
+            const selectedCategory = document.getElementById("categoryFilter").value;
+            let chartData = data.revenue_by_category;
+
+            if (selectedCategory !== "All Categories") {
+                chartData = chartData.filter(
+                    item => item.category === selectedCategory
+                );
+            }
+
+            const labels = chartData.map(item => item.category);
+
+            const values = chartData.map(item => item.revenue);
+
+            if (window.revenueChartInstance) {
+                window.revenueChartInstance.destroy();
+            }
+
+            window.revenueChartInstance = new Chart(
+                document.getElementById("revenueChart"),
+                {
+                    type: "bar",
+
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Revenue",
+                            data: values
+                        }]
+                    },
+
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+        }
+
+        async function loadInventory() {
+            const response = await fetch(`${API_BASE}/metrics/inventory`);
+            const data = await response.json();
+
+            const table = document.getElementById("inventoryTable");
+            table.innerHTML = "";
+
+            data.inventory.forEach(item => {
+                let statusClass = "status-good";
+
+                if (item.status === "Low Stock") {
+                    statusClass = "status-warning";
+                }
+
+                if (item.status === "Reorder Needed") {
+                    statusClass = "status-danger";
+                }
+
+                table.innerHTML += `
+            <tr>
+                <td>${item.sku}</td>
+                <td>${item.product}</td>
+                <td>${item.current_stock}</td>
+                <td>${item.predicted_demand}</td>
+                <td class="${statusClass}">${item.status}</td>
+            </tr>
+        `;
+            });
+        }
+
+        async function loadCampaigns() {
+            const response = await fetch(`${API_BASE}/metrics/campaigns`);
+            const data = await response.json();
+
+            const table = document.getElementById("campaignTable");
+            table.innerHTML = "";
+
+            data.campaigns.forEach(item => {
+                table.innerHTML += `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.discount}</td>
+                <td>${item.revenue_lift}</td>
+                <td>${item.new_customers}</td>
+                <td>${item.conversion_lift}</td>
+            </tr>
+        `;
+            });
+        }
+
+        async function loadForecast() {
+            const response = await fetch(`${API_BASE}/forecast/category-demand`);
+            const data = await response.json();
+            const tbody = document.querySelector("#forecastTable tbody");
+            tbody.innerHTML = "";
+            data.forecast.forEach(row => {
+                tbody.innerHTML += `
+            
+            <tr>
+                <td>${row.category}</td>
+                <td>${Math.round(row.forecast_quantity)}</td>
+                <td>
+                    Reorder ${Math.round(row.forecast_quantity * 0.25)}
+                    units
+                </td>
+            </tr>
+        `;
+            });
+        }
+
+        async function askAgent() {
+            const question = document.getElementById("questionInput").value;
+
+            document.getElementById("agentStatus").innerText = "Running...";
+            document.getElementById("sqlOutput").innerText = "";
+
+            const response = await fetch(`${API_BASE}/agent/query`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            });
+
+            const data = await response.json();
+
+            document.getElementById("agentStatus").innerText = data.status;
+            document.getElementById("sqlOutput").innerText = data.generated_sql || "No SQL returned.";
+            document.getElementById("insightOutput").innerText = data.answer || "No insight generated.";
+        }
+
+
+        document.getElementById("dateFilter").addEventListener("change", applyFilters);
+        document.getElementById("categoryFilter").addEventListener("change", applyFilters);
+        document.getElementById("channelFilter").addEventListener("change", applyFilters);
+
+
+        function applyFilters() {
+            loadDashboard();
+        }
+
+        loadDashboard();
+        loadInventory();
+        loadCampaigns();
+        loadForecast();
+    </script>
+
+</body>
+
+</html>
